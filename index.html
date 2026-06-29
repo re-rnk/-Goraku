@@ -19,8 +19,32 @@
             overflow: hidden;
         }
 
+        /* 0. パスワード入力画面 */
+        #password-container {
+            width: 90%;
+            max-width: 450px;
+            background: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 25px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .password-input {
+            width: 80%;
+            padding: 10px;
+            font-size: 1.2rem;
+            text-align: center;
+            letter-spacing: 4px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-top: 15px;
+        }
+
         /* 1. 初期ダイアログ画面 */
         #dialog-container {
+            display: none; /* 初期状態は非表示 */
             width: 90%;
             max-width: 450px;
             background: #ffffff;
@@ -134,6 +158,14 @@
 </head>
 <body>
 
+    <div id="password-container">
+        <h3>漫画Gorakuに入室するには<br>会員パスワードを入力してください</h3>
+        <input type="password" id="pwd-field" class="password-input" placeholder="パスワード" maxlength="4">
+        <div class="btn-group">
+            <button class="btn btn-enter" onclick="checkPassword()">送信</button>
+        </div>
+    </div>
+
     <div id="dialog-container">
         <h3>漫画Gorakuに入室しますか？</h3>
         <p class="warning-text">
@@ -177,6 +209,19 @@
     </div>
 
     <script>
+        // パスワードチェック処理
+        function checkPassword() {
+            const inputPwd = document.getElementById('pwd-field').value;
+            if (inputPwd === '4750') {
+                // パスワード画面を隠し、入室確認ダイアログを表示
+                document.getElementById('password-container').style.display = 'none';
+                document.getElementById('dialog-container').style.display = 'block';
+            } else {
+                alert('パスワードが違います');
+                document.getElementById('pwd-field').value = ''; // 入力をクリア
+            }
+        }
+
         function goBack() {
             if (document.referrer) {
                 window.history.back();
@@ -228,8 +273,8 @@
 
         function nextStep() {
             alert(`ドッキリ大成功！
-当サイトはウイルスの挙動を安全に学ぶための体験型サイトであり、悪意のある詐欺サイトではありません。`);
-        } // ←ここが抜けていたのを修正しました
+当サイトはウイルスの挙動を安全に学ぶための体験型サイトであり、悪意のある詐欺サイトではありません`);
+        }
     </script>
 </body>
 </html>
