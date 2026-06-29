@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>漫画Goraku</title>
+    <style>
+        /* 共通設定 */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* 1. 初期ダイアログ画面 */
+        #dialog-container {
+            width: 90%;
+            max-width: 450px;
+            background: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 25px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .warning-text {
+            font-size: 0.8rem;
+            color: #ff4d4f;
+            margin-top: 10px;
+            background: #fff2f0;
+            border: 1px solid #ffccc7;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .btn-group {
+            margin-top: 25px;
+            display: flex;
+            justify-content: space-around;
+        }
+        .btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        .btn-back { background-color: #e0e0e0; color: #333; }
+        .btn-enter { background-color: #1890ff; color: white; }
+
+        /* 2. コマンドライン＋警告表示画面 */
+        #terminal-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000000;
+            color: #00ff00;
+            padding: 20px;
+            box-sizing: border-box;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            overflow-y: auto;
+        }
+
+        /* 3. コマンド終了後に表示するアラートスタイル */
+        #alert-content {
+            display: none; /* 初期状態は非表示 */
+            color: #ffffff;
+            max-width: 600px;
+            margin: 50px auto;
+            text-align: center;
+            font-family: sans-serif;
+        }
+        .apple-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        /* 管理情報のテーブル設定 */
+        .info-table {
+            width: 100%;
+            margin: 20px 0;
+            border-collapse: collapse;
+            background-color: #1a1a1a;
+            border: 1px solid #444;
+        }
+        .info-table th, .info-table td {
+            border: 1px solid #444;
+            padding: 12px;
+            text-align: left;
+        }
+        .info-table th {
+            background-color: #2a2a2a;
+            color: #aaa;
+            width: 40%;
+        }
+        .info-table td {
+            color: #fff;
+            font-weight: bold;
+        }
+        .alert-message {
+            color: #ff4d4f;
+            font-size: 1.1rem;
+            font-weight: bold;
+            line-height: 1.6;
+            margin: 25px 0;
+            text-align: left;
+        }
+        .btn-action {
+            background-color: #0071e3;
+            color: white;
+            padding: 12px 30px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .btn-action:hover { background-color: #0077ed; }
+    </style>
+</head>
+<body>
+
+    <div id="dialog-container">
+        <h3>漫画Gorakuに入室しますか？</h3>
+        <p class="warning-text">
+            稀に管理対象の端末で入室するとエラーが発生する場合がございます
+        </p>
+        <div class="btn-group">
+            <button class="btn btn-back" onclick="goBack()">戻る</button>
+            <button class="btn btn-enter" onclick="startSimulation()">入室</button>
+        </div>
+    </div>
+
+    <div id="terminal-container">
+        <div id="output-log"></div>
+        
+        <div id="alert-content">
+            <div class="apple-icon"></div>
+            
+            <table class="info-table">
+                <tr>
+                    <th>management</th>
+                    <td>tokai sagami</td>
+                </tr>
+                <tr>
+                    <th>Administrative user</th>
+                    <td>Shingo Fukumura</td>
+                </tr>
+            </table>
+
+            <div class="alert-message">
+                この端末の管理者にこの画面を提示し、Apple School Administration Systemのセキュリティロックを解除してください。<br><br>
+                正式な対処をせずにこの画面を閉じると端末が正常に動作しなくなる可能性があるため絶対に閉じないでください。
+            </div>
+
+            <button class="btn-action" onclick="nextStep()">Apple School Administration Systemへ進む</button>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            if (document.referrer) {
+                window.history.back();
+            } else {
+                alert("前のページが存在しないため戻れません。");
+            }
+        }
+
+        // 模擬ログテキスト
+        const logLines = [
+            "Checking terminal enrollment status...",
+            "Fetching profile verification tokens...",
+            "Connecting to Apple School Administration System...",
+            "Requesting secure handshake...",
+            "Error: Remote lock flag triggered by management policy.",
+            "Enforcing restriction payload...",
+            "Disabling local user shell...",
+            "System lockdown initiated."
+        ];
+
+        function startSimulation() {
+            document.getElementById('dialog-container').style.display = 'none';
+            const terminal = document.getElementById('terminal-container');
+            terminal.style.display = 'block';
+
+            const logArea = document.getElementById('output-log');
+            let lineIndex = 0;
+
+            // コマンドを1行ずつ表示するタイマー
+            const interval = setInterval(() => {
+                if (lineIndex < logLines.length) {
+                    const p = document.createElement('p');
+                    p.style.margin = '4px 0';
+                    p.textContent = `> ${logLines[lineIndex]}`;
+                    logArea.appendChild(p);
+                    terminal.scrollTop = terminal.scrollHeight;
+                    lineIndex++;
+                } else {
+                    clearInterval(interval);
+                    
+                    // コマンド入力が完了したら、1秒後にすべて消去して警告画面を出す
+                    setTimeout(() => {
+                        logArea.style.display = 'none'; // コマンドを全部消す
+                        document.getElementById('alert-content').style.display = 'block'; // 警告を出す
+                    }, 1000);
+                }
+            }, 250);
+        }
+
+        function nextStep() {
+            alert("ドッキリ大成功!");
+        }
+    </script>
+</body>
+</html>
